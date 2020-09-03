@@ -1,6 +1,6 @@
 # R for data science
 
-This repository contains materials for **R for data science with tidyverse and ggplot2** seminar, conducted as a part of [#NGSeminars series](https://ngschool.eu/ngseminars) by NGSchool Society. The recording is available [here](https://www.youtube.com/NGSchoolEU).
+This repository contains materials for **R for data science with tidyverse and ggplot2** seminar, conducted as a part of [#NGSeminars series](https://ngschool.eu/ngseminars) by NGSchool Society. The recording is available [here](https://www.youtube.com/watch?v=G8cGmdrCsUs).
 
 ## Running the tutorial materials
 

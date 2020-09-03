@@ -19,9 +19,12 @@ knitr::opts_chunk$set(render = function(x, ...){
 }) # allows us to use .Last.value in knitted .Rmd file as we would in R console
 ```
 
+\setcounter{tocdepth}{4}
+\tableofcontents
+
 # I. Intro to tidyverse
 
-```{r, echo=F}
+```{r, echo=FALSE}
 knitr::include_graphics("images/tidyverse.png")
 ```
 
@@ -47,7 +50,7 @@ You can also suppress this message by running:
 suppressPackageStartupMessages(library(tidyverse))
 ```
 
-## 2. pipe operator %>% 
+## 2. Pipe operator %>% 
 
 It allows as to chain operations together for convenience and better readability. 
 
@@ -61,7 +64,7 @@ seq(100) %>%
 ```
 
 
-## 3. tibbles
+## 3. *tibbles*
 
 Basic data object in tidyverse. It's basically an improved/modernized data.frame.
 
@@ -139,7 +142,7 @@ penguins
 
 Tip: remember that you can still use usual 'data.frame-like' operations on this data set. Try checking dimensions with *dim(penguins)* or looking at whole dataset with *View(penguins)*.
 
-```{r, echo=F, out.width= "100%",fig.align='center'}
+```{r, echo=FALSE, out.width= "100%",fig.align='center'}
 knitr::include_graphics('images/palmer_penguins_bill.png')
 ```
 
@@ -153,13 +156,13 @@ Here are some useful commands you can use to explore your data. Included figures
 
 - use **select** to select columns by names (or helper function)
 
-```{r, echo=F, out.width="60%"}
+```{r, echo=FALSE, out.width="60%"}
 knitr::include_graphics('images/dplyr_select.png')
 ```
 
 - use **filter** to select rows that meet logical criteria / select rows based on value in specific column
 
-```{r, echo=F, out.width="60%"}
+```{r, echo=FALSE, out.width="60%"}
 knitr::include_graphics('images/dplyr_filter.png')
 ```
 
@@ -175,7 +178,7 @@ knitr::include_graphics('images/dplyr_filter.png')
 
 - use **separate** to separate values in column into multiple columns and **unite** to reverse the process
 
-```{r, echo=F, out.width="60%"}
+```{r, echo=FALSE, out.width="60%"}
 knitr::include_graphics('images/dplyr_mutate.png')
 ```
 
@@ -185,7 +188,7 @@ knitr::include_graphics('images/dplyr_mutate.png')
 
 - use **summarise** to summarise your data into single row of values, combine it with **group_by** to calculate statistics for your groups
 
-```{r, echo=F, , out.width="75%"}
+```{r, echo=FALSE, out.width="75%"}
 knitr::include_graphics('images/dplyr_group_by_summarise.png')
 ```
 
@@ -197,13 +200,13 @@ knitr::include_graphics('images/dplyr_group_by_summarise.png')
 
 - use **full_join** to combine data sets and preserve all rows
 
-```{r, echo=F, out.width="50%"}
+```{r, echo=FALSE, out.width="50%"}
 knitr::include_graphics('images/dplyr_join.png')
 ```
 
-## II. Data exploration & Plotting
+# II. Data exploration & Plotting
 
-### 1. "Palmer penguins"
+## 1. *Palmer penguins* dataset
 
 Let's try using this operations to explore our data sets. How about we take a "glimpse" into our penguin dataset?
 
@@ -227,12 +230,14 @@ Here is the data column specification:
 
 - *sex* a factor denoting penguin sex
 
+- *year* variable denoting the study year
+
 Tip: Pay special attention to data types inferred by tidyverse. This data was already cleaned up and prepared for analysis.
 Factor type variables will be very important for grouping and plotting our data.
 
-### 2. How many penguins of each species is in the dataset?
+## 2. How many penguins of each species is in the dataset?
 
-1. We are only interested in 'species' column, so we can subset the dataset. (This is an optional step, just for exercise and visual purposes.)
+We are only interested in 'species' column, so we can subset the dataset. (This is an optional step, just for exercise and visual purposes.)
 
 ```{r}
 select(penguins, species)
@@ -244,7 +249,7 @@ penguins %>%
   select(species)
 ```
 
-Bonus (1): Other example uses of **select**:
+**Bonus (1)**: Other example uses of **select**:
 
 ```{r}
 # select two columns
@@ -255,7 +260,7 @@ penguins %>% select(- species)
 penguins %>% select(matches("bill*"))
 ```
 
-Bonus (2): How to extract values from the tibble? (Here we use *head* function to show only first values in the vector)
+**Bonus (2)**: How to extract values from the tibble? (Here we use *head* function to show only first values in the vector)
 ```{r}
 # Option 1 -> deframing the vector 
 penguins %>%
@@ -271,16 +276,16 @@ penguins %>%
 
 Moving on to our exercise...
 
-2. Let's try counting our penguins with **summarise** function:
+Let's try counting our penguins with **summarise** function:
 
-```{r}
+```{r , warning=FALSE, message=FALSE}
 penguins %>%
   summarise(count=n())
 ```
 
-3. Well that's all of our penguins. If we are interested in looking at different species we should group data with **group_by** before.
+Well that's all of our penguins. If we are interested in looking at different species we should group data with **group_by** before.
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 # just grouping our penguins does not visually affect the data
 penguins %>% 
   group_by(species)
@@ -292,7 +297,7 @@ penguins %>%
 
 This looks nice, but it would look even better if we plot it
 
-### 3. How to plot in ggplot2?
+## 3. **How to plot in ggplot2?**
 
 The **ggplot2** has very specific *grammar*, which provides the rules on how to effectively create plots. We construct the plots step, by step by adding additional levels of organization. This *layering* of plot elements provides us with a great control over our plot and high level of possible customization. Take a look at this figure below (created and made available by [*Coding Club*](https://ourcodingclub.github.io) on CC BY 4.0 license) to get preview of what we are going to do.
 
@@ -301,9 +306,9 @@ knitr::include_graphics("images/ggplot_layers.png")
 ```
 Hmm... I wonder if our penguins with bigger flippers are also heavier? We will check this out in a moment! Now let's try to create a plot showing a distribution of species in our dataset.
 
-#### (1) Create base ggplot object
-\  
-```{r, out.width="80%", fig.align='center'}
+### (1) Create base ggplot object
+
+```{r, out.width="80%", fig.align='center', warning=FALSE, message=FALSE}
 penguins %>% 
   group_by(species) %>%
   summarise(count=n()) %>%
@@ -312,13 +317,12 @@ penguins %>%
 
 Well... that didn't work. However, we didn't even specify what we want to plot yet so it's understandable. 
 
-#### (2) Add aesthetics to the plot
-\  
+### (2) Add aesthetics to the plot
 
 *Aesthetics* specify what we want to plot (map variables to *x* and *y axis* and other parts of plot such as its color).
 Here we want to show the difference in species distribution (let's add nice colors on top of it).
 
-```{r, out.width="80%", fig.align='center'}
+```{r, out.width="80%", fig.align='center', warning=FALSE, message=FALSE}
 penguins %>% 
   group_by(species) %>%
   summarise(count=n()) %>%
@@ -326,13 +330,13 @@ penguins %>%
 ```
 That's a good start. Now the question is how exactly we want to show the data?
 
-#### (3) Add geometric layers
-\  
+### (3) Add geometric layers
 
 There is many different types of plots. Here because we want to show a difference in one categorical variable across groups, let's aim for simple barplot.
 
-```{r, out.width="80%", fig.align='center'}
-# we use 'identity' when we build barplot with x and y values, by defult it requires only x values
+```{r, out.width="80%", fig.align='center', warning=FALSE, message=FALSE}
+# we use 'identity' when we build barplot with x and y values, 
+#by defult it requires only x values
 penguins %>% 
   group_by(species) %>%
   summarise(count=n()) %>%
@@ -341,7 +345,7 @@ penguins %>%
 ```
 My friends and foes we have a plot! Only... the colors are not quite alright. What happened? ggplot uses two different parameters for setting colors, in general *color*/*colour* defines the color of the geom outline and *fill* specifies what color the geom is filled with. Let's correct it!
 
-```{r, out.width="80%", fig.align='center'}
+```{r, out.width="80%", fig.align='center', warning=FALSE, message=FALSE}
 penguins %>% 
   group_by(species) %>%
   summarise(count=n()) %>%
@@ -349,9 +353,9 @@ penguins %>%
   geom_bar(stat="identity")
 ```
 
-Bonus (3): Note about *aes()* placement. By placing aesthetics in *ggplot()* function, they will be applied to every *geom* function. I recommend binding our aesthetics to specific *geoms* instead. This way we can mix and match *geoms* with different mappings.
+**Bonus (3)**: Note about *aes()* placement. By placing aesthetics in *ggplot()* function, they will be applied to every *geom* function. I recommend binding our aesthetics to specific *geoms* instead. This way we can mix and match *geoms* with different mappings.
 
-```{r, echo=TRUE, eval=FALSE}
+```{r, echo=TRUE, eval=FALSE, warning=FALSE, message=FALSE}
 # this is an equivalent of last commend
 penguins %>% 
   group_by(species) %>%
@@ -360,11 +364,10 @@ penguins %>%
   geom_bar(aes(x=species, y=count, color=species), stat="identity")
 ```
 
-#### (3) Mixing different geoms
-\  
+### (3) Mixing different geoms
 
 Let's try adding labels with specific count to our plot with *geom_label* (We can also use *geom_text*).
-```{r, out.width="80%", fig.align='center'}
+```{r, out.width="80%", fig.align='center', warning=FALSE, message=FALSE}
 penguins %>% 
   group_by(species) %>%
   summarise(count=n()) %>%
@@ -374,8 +377,8 @@ penguins %>%
 ```
 This looks very good already but there is much more things we could do.
 
-#### (3) Customizing your plots.
-\  
+### (3) Customizing your plots.
+ 
 We definitely cannot cover all the different way you can improve your plot, but here are some examples of possible customizations:
 
 - updating axis labels and title (all can be changed with *labs* function, or by adding *xlab*, *ylab* and *ggtitle*)
@@ -400,7 +403,7 @@ Also not applicable here (some we will see later on):
 
 Let's add some of that to our plot!
 
-```{r, out.width="80%", fig.align='center'}
+```{r, out.width="80%", fig.align='center', warning=FALSE, message=FALSE}
 library(PNWColors) # great library, with color-blind friendly palettes
 
 penguins %>% 
@@ -420,14 +423,13 @@ Let's save our plot for later:
 species_plot <- last_plot()
 ```
 
-#### (4) Facets
-\  
+### (4) Facets
 
 Let's look at penguins of both sexes separately. *facet_wrap* and *facet_grid* functions can split data into a additional panels based on one or combination of multiple factor values. 
 
 All "small" plots represents the same graphical idiom, but with data from a different level of the faceting variable. This is different then plotting different geoms side by side, which we will see later on.
 
-```{r, out.width="80%", fig.align='center'}
+```{r, out.width="80%", fig.align='center', warning=FALSE, message=FALSE}
 penguins %>% 
   group_by(species, sex) %>% #we are adding new grouping variable
   summarise(count=n()) %>%
@@ -450,7 +452,7 @@ penguins %>% filter(is.na(sex))
 
 There is 11 rows that need to be filtered out.
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 # filter out this rows
 penguins %>%
   filter(!is.na(sex)) %>% # filter out this rows
@@ -460,7 +462,7 @@ penguins %>%
 
 Great! Now let's plot it again:
 
-```{r, out.width="80%", fig.align='center'}
+```{r, out.width="80%", fig.align='center', warning=FALSE, message=FALSE}
 penguins %>% 
   filter(!is.na(sex))%>%
   group_by(species, sex) %>% #we are adding new grouping variable
@@ -475,7 +477,7 @@ penguins %>%
   facet_wrap(~sex) # split based on sex
 ```
 
-Bonus (4): More **filter** examples
+**Bonus (4)**: More **filter** examples
 ```{r}
 # filter based on catgorical variable
 penguins %>% filter(species == 'Adelie')
@@ -487,10 +489,9 @@ penguins %>% filter(species %in% c('Adelie', 'Gentoo'))
 penguins %>% filter(species == 'Adelie' & island == 'Torgersen')
 ```
 
-### 4. Does heavier penguins have longer flippers? 
+## 4. Does heavier penguins have longer flippers? 
 
-#### (1). Let's explore the data
-\  
+### (1). Let's explore the data
 
 We are interested in penguin body mass and flipper length for different species.
 
@@ -508,7 +509,7 @@ penguins %>%
 
 We can also calculate average body mass and flipper length across species.
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 # check mean body mass and flipper length across species
 penguins %>%
   group_by(species) %>%
@@ -516,8 +517,8 @@ penguins %>%
             mean_flipper_length = mean(flipper_length_mm, na.rm=TRUE))
 ```
 
-Bonus (5): **summarize** function can do much more then just counting penguins and means!
-```{r}
+**Bonus (5)**: **summarize** function can do much more then just counting penguins and means!
+```{r, warning=FALSE, message=FALSE}
 # check mean, maximum and minimum body mass of penguins across species
 penguins %>%
   group_by(species) %>%
@@ -539,17 +540,16 @@ penguins %>%
   mutate(ratio=body_mass_g/flipper_length_mm)
 ```
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 penguins %>%
   group_by(species) %>%
   mutate(ratio=body_mass_g/flipper_length_mm) %>%
-  summarise(avg_reatio = mean(ratio, na.rm = T))
+  summarise(avg_ratio = mean(ratio, na.rm = TRUE))
 ```
 
 Our results sure look promising, but we cannot really tell only based only on means. Let's plot the data! What type of plot do we want to use? How about we show every penguin as a data point? 
 
-#### (2) Plotting the relationship between two continuous variables
-\  
+### (2) Plotting the relationship between two continuous variables
 
 Do we have any missing values?
 
@@ -578,8 +578,7 @@ penguins %>%
   geom_smooth(aes(x=body_mass_g, y=flipper_length_mm), method = "lm")
 ```
 
-#### (3) Customizing the plot
-\  
+### (3) Customizing the plot
 
 This already looks very good! Let's customize this plot a bit and fit model separately to show trend in different species.
 
@@ -587,12 +586,15 @@ This already looks very good! Let's customize this plot a bit and fit model sepa
 penguins %>%
   filter(!is.na(body_mass_g) & !is.na(flipper_length_mm)) %>%
   ggplot() +
-  geom_point(aes(x=body_mass_g, y=flipper_length_mm, color=species), size=3) + # increase size of points
-  geom_smooth(aes(x=body_mass_g, y=flipper_length_mm, group=species, color=species), method = "lm", se=F) +
-  labs(x= "Body mass [g]", y= "Flipper length [mm]", title = "Heavier penguins have bigger wingspan", color="") +
+  geom_point(aes(x=body_mass_g, y=flipper_length_mm, color=species), 
+             size=3) + # increase size of points
+  geom_smooth(aes(x=body_mass_g, y=flipper_length_mm, group=species, color=species), 
+              method = "lm", se=FALSE) +
+  labs(x= "Body mass [g]", y= "Flipper length [mm]", 
+       title = "Heavier penguins have bigger wingspan", color="") +
   theme_bw() +
   theme(legend.position = "bottom") +
-  scale_color_manual(values = pnw_palette("Bay",3)) # here we use 'color' palette not 'fill' palette
+  scale_color_manual(values = pnw_palette("Bay",3)) # use 'color' (not 'fill') palette
 ```
 
 Let's save our plot for later:
@@ -600,23 +602,21 @@ Let's save our plot for later:
 mass_wingspan_plot <- last_plot()
 ```
 
-### 5. What is the distribution of bill length across species?
+## 5. What is the distribution of bill length across species?
 
-#### (1). Let's explore the data
-\  
+### (1). Let's explore the data
 
 Check mean values of bill length across species.
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 penguins %>%
   filter(! is.na(bill_length_mm)) %>% # filter out missing values
   group_by(species) %>%
-  summarise(mean_bill_length=mean(bill_length_mm, na.rm = T))
+  summarise(mean_bill_length=mean(bill_length_mm, na.rm = TRUE))
 ```
 Even though we observed that *Gentoo* are the biggest birds, the difference between average bill length is not very big.
 
-#### (2) Plotting continuous variable across different groups
-\  
+### (2) Plotting continuous variable across different groups
 
 ```{r, out.width="80%", fig.align='center'}
 penguins %>%
@@ -626,9 +626,12 @@ penguins %>%
 ```
 Hmm... that doesn't look right, we cannot use the same *geom* type. What should we use?
 
+#### **Which plot type is appropriate for our data?**
+\  
+
 The answer to this questions is not always immediately obvious. The most important thing to consider is what are the types of variables we want to display. Take a look at this figure (also created by [*Coding Club*](https://ourcodingclub.github.io)).
 
-```{r, echo=F, out.width="100%", fig.align='center'}
+```{r, echo=FALSE, out.width="100%", fig.align='center'}
 knitr::include_graphics("images/plot_types.png")
 ```
 
@@ -647,8 +650,10 @@ This is an improvement, but if we want to also see our specific data point we ca
 penguins %>%
   filter(!is.na(bill_length_mm)) %>%
   ggplot() +
-  geom_boxplot(aes(x=species,y=bill_length_mm, fill=species), outlier.alpha = 0) + # hide outliers
-  geom_jitter(aes(x=species, y=bill_length_mm), width = 0.2, height = 0)  # we restrict variation of point height
+  # hide outliers
+  geom_boxplot(aes(x=species,y=bill_length_mm, fill=species), outlier.alpha = 0) +
+  # we restrict variation of point heights
+  geom_jitter(aes(x=species, y=bill_length_mm), width = 0.2, height = 0)
 ```
 
 Even though we saw that *Adelie* and *Chinstrap* penguins have similar sizes (or at least wingspan and body mass) it looks like former have much shorter bills. Let's customize our plot and finish!
@@ -658,7 +663,8 @@ penguins %>%
   filter(!is.na(bill_length_mm)) %>%
   ggplot() +
   geom_boxplot(aes(x=species,y=bill_length_mm, fill=species), outlier.alpha = 0) + 
-  geom_jitter(aes(x=species, y=bill_length_mm), width = 0.2, height = 0, size=2, alpha=0.4) + # add transparency to points
+  geom_jitter(aes(x=species, y=bill_length_mm), 
+              width = 0.2, height = 0, size=2, alpha=0.4) + # add transparency to points
   labs(y= "Bill length [mm]", title = "Bill length across different species", fill="") +
   theme_bw() +
   theme(legend.position = "bottom") +
@@ -670,8 +676,7 @@ Let's save our plot:
 bill_plot <- last_plot()
 ```
 
-#### (3) Combining different plots
-\  
+### (3) Combining different plots
 
 We created three different plots for *palmerpenguins* dataset. How can we see them together? This is a different then creating *facets*, because every plot represents different data. One of the easiest way to display different plots together is to use *ggarrange* function from *ggpubr* package.
 
@@ -701,14 +706,16 @@ ggarrange(species_plot, bill_plot, mass_wingspan_plot, logo_img,
 ```
 
 
-### 6. Importance of reshaping your data
+## 6. Importance of reshaping your data
 
 The *palmerpenguins* dataset is already preprocessed and prepared for analysis. This is not always the case. When using your own data frequently check if your observations are in correct orientation (rows or columns). This is extremely important when plotting data, because most of the operations is based on assumption of variables being in columns of the tibble.
 
 *Q*: What to do when this is not the case? 
+
 *A*: We have to reshape the data with the help of **gather** and **spread** operations.
 
 *Q*: How do we decide if our data need reshaping?
+
 *A*: Think about effect you need to achieve and work your way down!
 
 Let's see an example! Remember *countries* dataset we loaded from the file?
@@ -748,7 +755,7 @@ long_countries %>%
 
 Here is the plot we wanted to make:
 
-```{r, out.width="80%", fig.align='center'}
+```{r, out.width="80%", fig.align='center', warning=FALSE, message=FALSE}
 long_countries %>%
   group_by(year, country) %>%
   summarise(total_population=sum(population)) %>% # we are interested in total population
