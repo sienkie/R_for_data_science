@@ -29,7 +29,7 @@ If you don't have access to R and RStudio you can run it on cloud for free:
 ### Package installation
     
 ```r
-required_packages <- c("tidyverse", "ggpubr", "palmerpenguins")
+required_packages <- c("tidyverse", "ggpubr", "palmerpenguins", "PNWColors", "png")
 
 for (pkg in required_packages) {
   if (pkg %in% rownames(installed.packages()) == FALSE){

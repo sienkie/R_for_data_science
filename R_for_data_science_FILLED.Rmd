@@ -128,7 +128,7 @@ This example file was created based on estimated population data available at "U
 Other data we are going to explore today is penguins data set, which contains information about 3 species of penguins. 
 Data was collected and by [*Dr. Kristen Gorman*](https://www.uaf.edu/cfos/people/faculty/detail/kristen-gorman.php) and the [*Palmer Station, Antarctica LTER*](https://pal.lternet.edu), a member of the [*Long Term Ecological Research Network*](https://lternet.edu). Artwork by [*@allison_horst*](https://twitter.com/allison_horst).
 
-```{r, echo=FALSE, out.width="80%"}
+```{r, echo=FALSE, out.width= "100%", fig.align='center'}
 knitr::include_graphics('images/palmer_penguins.png')
 ```
 
@@ -139,7 +139,7 @@ penguins
 
 Tip: remember that you can still use usual 'data.frame-like' operations on this data set. Try checking dimensions with *dim(penguins)* or looking at whole dataset with *View(penguins)*.
 
-```{r, echo=F}
+```{r, echo=F, out.width= "100%",fig.align='center'}
 knitr::include_graphics('images/palmer_penguins_bill.png')
 ```
 
@@ -197,7 +197,7 @@ knitr::include_graphics('images/dplyr_group_by_summarise.png')
 
 - use **full_join** to combine data sets nd preserve all rows
 
-```{r, echo=F}
+```{r, echo=F, out.width="50%"}
 knitr::include_graphics('images/dplyr_join.png')
 ```
 
@@ -244,7 +244,7 @@ penguins %>%
   select(species)
 ```
 
-Bonus (1) : Other example uses of **select**:
+Bonus (1): Other example uses of **select**:
 
 ```{r}
 # select two columns
@@ -294,16 +294,229 @@ This looks nice, but it would look even better if we plot it
 
 ### 3. How to plot in ggplot2?
 
-The **ggplot2** has very specific grammar. We construct the plots step, by step by adding additional layers of organization. Take a look at this figure below (created and made available by [*Coding Club*](https://ourcodingclub.github.io) on CC BY 4.0 license) to get preview of what we are going to do.
+The **ggplot2** has very specific *grammar*, which provides the rules on how to effectively create plots. We construct the plots step, by step by adding additional levels of organization. This *layering* of plot elements provides us with a great control over our plot and high level of possible customization. Take a look at this figure below (created and made available by [*Coding Club*](https://ourcodingclub.github.io) on CC BY 4.0 license) to get preview of what we are going to do.
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, out.height="80%", fig.align='center'}
 knitr::include_graphics("images/ggplot_layers.png")
 ```
 Hmm... I wonder if our penguins with bigger flippers are also havier? We will check this out in a moment! Now let's try to create a plot showing a distribution of species in our dataset.
 
+#### (1) Create base ggplot object
+\  
+```{r, out.width="80%", fig.align='center'}
+penguins %>% 
+  group_by(species) %>%
+  summarise(count=n()) %>%
+  ggplot() # or ggplot(penguins)
+```
 
+Well... that didn't work. However, we didn't even specify what we want to plot yet so it's understandable. 
 
-Bonus (3): **summarize** function can do much more then just counting penguins! 
+#### (2) Add aestethics to the plot
+\  
+
+*Aesthetics* specify what we want to plot (map variables to *x* and *y axis* and other parts of plot such as its color).
+Here we want to show the difference in species distribution (let's add nice colors on top of it).
+
+```{r, out.width="80%", fig.align='center'}
+penguins %>% 
+  group_by(species) %>%
+  summarise(count=n()) %>%
+  ggplot(aes(x=species, y=count, color=species)) 
+```
+That's a good start. Now the question is how exactly we want to show the data?
+
+#### (3) Add geometric layers
+\  
+
+There is many different types of plots. Here because we want to show a difference in one categorical variable across groups, let's aim for simple barplot.
+
+```{r, out.width="80%", fig.align='center'}
+# we use 'identity' when we build barplot with x and y values, by defult it requires only x values
+penguins %>% 
+  group_by(species) %>%
+  summarise(count=n()) %>%
+  ggplot(aes(x=species, y=count, color=species)) +
+  geom_bar(stat="identity")
+```
+My friends and foes we have a plot! Only... the colors are not quite alright. What happend? ggplot uses two different parameters for setting colors, in general *color*/*colour* defines the color of the geom outline and *fill* specifies what color the geom is filled with. Let's correct it!
+
+```{r, out.width="80%", fig.align='center'}
+penguins %>% 
+  group_by(species) %>%
+  summarise(count=n()) %>%
+  ggplot(aes(x=species, y=count, fill=species)) +
+  geom_bar(stat="identity")
+```
+
+Bonus (3): Note about *aes()* placement. By placing aesthetics in *ggplot()* function, they will be applied to every *geom* function. I recommend binding our aesthetics to specific *geoms* instead. This way we can mix and match *geoms* with different mappings.
+
+```{r, echo=TRUE, eval=FALSE}
+# this is an equivalent of last commend
+penguins %>% 
+  group_by(species) %>%
+  summarise(count=n()) %>%
+  ggplot() +
+  geom_bar(aes(x=species, y=count, color=species), stat="identity")
+```
+
+#### (3) Mixing different geoms
+\  
+
+Let's try adding labels with specifc count to our plot with *geom_label* (We can also use *geom_text*).
+```{r, out.width="80%", fig.align='center'}
+penguins %>% 
+  group_by(species) %>%
+  summarise(count=n()) %>%
+  ggplot() +
+  geom_bar(aes(x=species, y=count, fill=species), stat="identity") +
+  geom_label(aes(x=species, y=count, label=count))
+```
+This looks very good already but there is much more things we could do.
+
+#### (3) Customizing your plots.
+\  
+We definetely cannot cover all the different way you can improve your plot, but here are some examples of possible customizations:
+
+- updating axis labels and title (all can be changed with *labs* function, or by adding *xlab*, *ylab* and *ggtitle*)
+
+- add a bit of transparency to our bars (with *alpha* parameter) so we can see our grid a bit better
+
+- changing color palette to color-blind friendly palette
+
+- adding new *theme** to our plot (quick change of plot appearence, see more [*here*](https://ggplot2.tidyverse.org/reference/ggtheme.html) and [*here*](https://github.com/jrnold/ggthemes))
+
+- editing our theme, ex. to change legend placements, removing legend altogether if it's not needed or changing fonts
+
+Also not applicable here (some we will see later on):
+
+- changing axis limits (with *xlim* and *ylim*)
+
+- changing shape of data points
+
+- adding error bars / error bar ribbons
+
+- fitting linear model to scatter plots
+
+Let's add some of that to our plot!
+
+```{r, out.width="80%", fig.align='center'}
+library(PNWColors) # great library, with color-blind friendly palettes
+
+penguins %>% 
+  group_by(species) %>%
+  summarise(count=n()) %>%
+  ggplot() +
+  geom_bar(aes(x=species, y=count, fill=species), stat="identity") +
+  geom_label(aes(x=species, y=count, label=count)) +
+  labs(title="Penguin species", y="number of penguins", fill="") +
+  theme_bw() +
+  theme(legend.position = "bottom") +
+  scale_fill_manual(values = pnw_palette("Bay",3))
+```
+
+Let's save our plot for later:
+```{r}
+species_plot <- last_plot()
+```
+
+#### (4) Facets
+\  
+
+Let's look at penguins of both sexes separately. *facet_wrap* and *facet_grid* functions can split data into a additional panels based on one or combination of multiple factor values. 
+
+All "small" plots represents the same graphical idiom, but with data from a different level of the faceting variable. This is different then plotting different geoms side by side, which we will see later on.
+
+```{r, out.width="80%", fig.align='center'}
+penguins %>% 
+  group_by(species, sex) %>% #we are adding new grouping variable
+  summarise(count=n()) %>%
+  ggplot() +
+  geom_bar(aes(x=species, y=count, fill=species), stat="identity") +
+  geom_label(aes(x=species, y=count, label=count)) +
+  labs(title="Penguin species", y="number of penguins", fill="") +
+  theme_bw() +
+  theme(legend.position = "bottom") +
+  scale_fill_manual(values = pnw_palette("Bay",3)) +
+  facet_wrap(~sex) # split based on sex
+```
+
+The plot looks nice, but unexpectly we have discovered that some penguins' sex was not identified. This is a good opportunity to practise some data filtering.
+
+```{r}
+# how many NA's is in the colum
+penguins %>% filter(is.na(sex))
+```
+
+There is 11 rows that need to be filtered out.
+
+```{r}
+# filter out this rows
+penguins %>%
+  filter(!is.na(sex)) %>% # filter out this rows
+  group_by(species, sex) %>%
+  summarise(count=n())
+```
+
+Great! Now let's plot it again:
+
+```{r, out.width="80%", fig.align='center'}
+penguins %>% 
+  filter(!is.na(sex))%>%
+  group_by(species, sex) %>% #we are adding new grouping variable
+  summarise(count=n()) %>%
+  ggplot() +
+  geom_bar(aes(x=species, y=count, fill=species), stat="identity") +
+  geom_label(aes(x=species, y=count, label=count)) +
+  labs(title="Penguin species", y="number of penguins in dataset", fill="") +
+  theme_bw() +
+  theme(legend.position = "bottom") +
+  scale_fill_manual(values = pnw_palette("Bay",3)) +
+  facet_wrap(~sex) # split based on sex
+```
+
+Bonus (4): More **filter** examples
+```{r}
+# filter based on catgorical variable
+penguins %>% filter(species == 'Adelie')
+# filter based on threshold for continuous variable
+penguins %>% filter(bill_depth_mm>(bill_length_mm/2))
+# filter based on multiple values of one variable
+penguins %>% filter(species %in% c('Adelie', 'Gentoo'))
+# filter with multiple conditions (use '&' operator as AND, '|' operator as OR)
+penguins %>% filter(species == 'Adelie' & island == 'Torgersen')
+```
+
+### 3. Does heavier penguins have longer flippers? 
+
+#### (1). Let's explore the data
+\  
+
+We are interested in penguin body mass and flipper length for different species.
+
+```{r}
+penguins %>%
+  select(species, body_mass_g, flipper_length_mm)
+```
+
+Let's check what species have highest and lowest body mass:
+```{r}
+penguins %>%
+  select(species, body_mass_g, flipper_length_mm) %>%
+  arrange(desc(body_mass_g)) #descending order
+```
+
+We can also calculate average body mass and flipper length across species.
+
+```{r}
+# check mean body mass and flipper length across species
+penguins %>%
+  group_by(species) %>%
+  summarise(mean_mass = mean(body_mass_g, na.rm=TRUE),
+            mean_flipper_length = mean(flipper_length_mm, na.rm=TRUE))
+```
+
+Bonus (5): **summarize** function can do much more then just counting penguins and means!
 ```{r}
 # check mean, maximum and minimum body mass of penguins across species
 penguins %>%
@@ -319,170 +532,175 @@ penguins %>%
   select(-year) # remove year column from output
 ```
 
-
-### 3. filter
-
+Are there differences in average body mass to flipper length ratio across species? Let's use **mutate** to create new column in our dataset.
 ```{r}
 penguins %>%
-  select(species, body_mass_g) %>%
-  filter(species == 'Adelie')
+  group_by(species) %>%
+  mutate(ratio=body_mass_g/flipper_length_mm)
 ```
 
 ```{r}
 penguins %>%
-  select(species, body_mass_g) %>%
-  filter(species %in% c('Adelie', 'Gentoo'))
+  group_by(species) %>%
+  mutate(ratio=body_mass_g/flipper_length_mm) %>%
+  summarise(avg_reatio = mean(ratio, na.rm = T))
 ```
 
-### 4. arrange & desc
-```{r}
-penguins %>%
-  arrange(body_mass_g)
-```
-```{r}
-penguins %>%
-  arrange(desc(body_mass_g))
-```
+Our results sure look promising, but we cannot really tell only based only on means. Let's plot the data! What type of plot do we want to use? How about we show every penguin as a datapoint? 
 
-## III. Data plotting
+#### (2) Plotting the relationship between two continuous variables
+\  
 
-** Does heavier penguins have longer flippers? **
+Do we have any missing values?
 
 ```{r}
 penguins %>%
+  filter(is.na(body_mass_g) | is.na(flipper_length_mm))
+```
+
+We will have to filter this two penguins out, before plotting:
+
+```{r, out.width="80%", fig.align='center'}
+penguins %>%
+  filter(!is.na(body_mass_g) & !is.na(flipper_length_mm)) %>%
   ggplot() +
-  geom_point(aes(x=body_mass_g, y=flipper_length_mm))
-```
-```{r}
-#penguins %>%
-#  ggplot() +
-#  geom_point(aes(x=body_mass_g, y=flipper_length_mm)) +
-#  xlab("Body mass [g]") + ylab("Flipper length [mm]") + ggtitle("Heavier penguins have bigger wingspan")
-
-penguins %>%
-  ggplot() +
-  geom_point(aes(x=body_mass_g, y=flipper_length_mm)) +
-  labs(x= "Body mass [g]", y= "Flipper length [mm]", title = "Heavier penguins have bigger wingspan")
-```
-```{r}
-penguins %>%
-  ggplot() +
-  geom_point(aes(x=body_mass_g, y=flipper_length_mm)) +
-  geom_smooth(aes(x=body_mass_g, y=flipper_length_mm), method = "lm") # let's fit linear model to it - gray band is 95% confidence level interval for predictions from model
+  geom_point(aes(x=body_mass_g, y=flipper_length_mm, color=species))
 ```
 
-```{r}
+This is great! It looks like there is some correlation here. Also *Gentoo* penguis are clearly the biggest birds.
+Let's fit linear model to our data to better show trend - gray band is 95% confidence level interval for predictions from model.
+
+```{r, out.width="80%", fig.align='center'}
 penguins %>%
+  filter(!is.na(body_mass_g) & !is.na(flipper_length_mm)) %>%
   ggplot() +
   geom_point(aes(x=body_mass_g, y=flipper_length_mm, color=species)) +
-  geom_smooth(aes(x=body_mass_g, y=flipper_length_mm, group=species, color=species), method = "lm") 
+  geom_smooth(aes(x=body_mass_g, y=flipper_length_mm), method = "lm")
 ```
 
-### Customizing plots
+#### (3) Customising the plot
+\  
 
-```{r}
-p <- penguins %>%
-  ggplot() +
-  geom_point(aes(x=body_mass_g, y=flipper_length_mm, color=species)) +
-  geom_smooth(aes(x=body_mass_g, y=flipper_length_mm, group=species, color=species), method = "lm",se = F)
+This already looks very good! Let's customize this plot a bit and fit model separately to show trend in different species.
 
-p <- p + labs(x= "Body mass [g]", y= "Flipper length [mm]", title = "Heavier penguins have bigger wingspan", color=NULL)
-
-p + theme_bw()
-
-p + theme_bw() + theme(legend.position = "bottom")
-```
-```{r}
-# color blind friendly palette (source: http://jfly.iam.u-tokyo.ac.jp/color/)
-cbp <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-
-p <- last_plot()
-p + scale_color_manual(values=cbp)
-```
-
-```{r}
-p <- last_plot()
-```
-
-Let's focus on flipper length distribution across the species.
-```{r}
+```{r, out.width="80%", fig.align='center'}
 penguins %>%
+  filter(!is.na(body_mass_g) & !is.na(flipper_length_mm)) %>%
   ggplot() +
-  geom_point(aes(x=species, y=flipper_length_mm))
+  geom_point(aes(x=body_mass_g, y=flipper_length_mm, color=species), size=3) + # increase size of points
+  geom_smooth(aes(x=body_mass_g, y=flipper_length_mm, group=species, color=species), method = "lm", se=F) +
+  labs(x= "Body mass [g]", y= "Flipper length [mm]", title = "Heavier penguins have bigger wingspan", color="") +
+  theme_bw() +
+  theme(legend.position = "bottom") +
+  scale_color_manual(values = pnw_palette("Bay",3)) # here we use 'color' palette not 'fill' palette
 ```
-Hmm that doesn't look right, we cannot use the same geom type. What should we use?
 
-It always depends on what we want to see:
-- relationship between two countinuous variables? -> scatter plots
-- compare values between groups? -> boxplot / violin plot, barplot or dot plot (geom_jitter)
-- show the distribution of the data -> histogram or density plot 
-
-Let's try to do a combination of barplot and dot plot:
+Let's save our plot for later:
 ```{r}
-penguins %>%
-  ggplot() +
-  geom_boxplot(aes(x=species,y=flipper_length_mm), outlier.alpha = 0) +
-  geom_jitter(aes(x=species, y=flipper_length_mm), width = 0.2, height = 0)
+mass_wingspan_plot <- last_plot()
 ```
-Let's look at penguins of both sexes separately.
-facet_wrap() and facet_grid() functions can split data into a additional panels based on one or combination of multiple factor values.
+
+### 4. What is the distribution of bill length accross species?
+
+#### (1). Let's explore the data
+\  
+
+Check mean values of bill length across species.
 
 ```{r}
 penguins %>%
-  ggplot() +
-  geom_boxplot(aes(x=species,y=flipper_length_mm), outlier.alpha = 0) +
-  geom_jitter(aes(x=species, y=flipper_length_mm), width = 0.2, height = 0) +
-  facet_wrap(~sex)
+  filter(! is.na(bill_length_mm)) %>% # filter out missing values
+  group_by(species) %>%
+  summarise(mean_bill_length=mean(bill_length_mm, na.rm = T))
 ```
-We can ignore penguins of unknown sex for now
-```{r}
-penguins %>% 
-  filter(!is.na(sex)) %>%
-  ggplot() +
-  geom_boxplot(aes(x=species,y=flipper_length_mm), outlier.alpha = 0) +
-  geom_jitter(aes(x=species, y=flipper_length_mm), width = 0.2, height = 0) +
-  facet_wrap(~sex)
-```
-It looks much better then our initial plot. I wonder if there are differences connected to the island penguins live on.
+Even though we observed that *Gentoo* are the biggest birds, the difference between average bill length is not very big.
 
-```{r}
-penguins %>% 
-  filter(!is.na(sex)) %>%
-  ggplot() +
-  geom_boxplot(aes(x=species,y=flipper_length_mm), outlier.alpha = 0) +
-  geom_jitter(aes(x=species, y=flipper_length_mm, color=island), width = 0.2, height = 0) +
-  facet_wrap(~sex)
-```
-Difference doesn't seem to be connected to the place. Also it seems like only Adelie penguinsare living on more then one island. How would we double check it?
+#### (2) Plotting continuous variable across different groups
+\  
 
-```{r}
+```{r, out.width="80%", fig.align='center'}
 penguins %>%
-  group_by(species, island) %>%
-  summarise(n())
+  filter(!is.na(bill_length_mm)) %>%
+  ggplot() +
+  geom_point(aes(x=species, y=flipper_length_mm, color=species))
+```
+Hmm... that doesn't look right, we cannot use the same *geom* type. What should we use?
+
+The answear to this questions is not always immediately obvious. The most important thing to consider is what are the types of variables we want to display. Take a look at this figure (also created by [*Coding Club*](https://ourcodingclub.github.io)).
+
+```{r, echo=F, out.width="100%", fig.align='center'}
+knitr::include_graphics("images/plot_types.png")
 ```
 
-## IV. Let's complicate things 
+We want to show a distribution of continuous variable across different groups. Let's use boxplot!
 
+```{r, out.width="80%", fig.align='center'}
+penguins %>%
+  filter(!is.na(bill_length_mm)) %>%
+  ggplot() +
+  geom_boxplot(aes(x=species,y=bill_length_mm, fill=species))
+```
+
+This is an improvement, but if we want to also see our specific datapoint we can do it with a variation of *geom_point* called *geom_jitter* (it adds a bit of noise to points position, so we will be able to see our observations).
+
+```{r, out.width="80%", fig.align='center'}
+penguins %>%
+  filter(!is.na(bill_length_mm)) %>%
+  ggplot() +
+  geom_boxplot(aes(x=species,y=bill_length_mm, fill=species), outlier.alpha = 0) + # hide outliers
+  geom_jitter(aes(x=species, y=bill_length_mm), width = 0.2, height = 0)  # we restrict variation of point height
+```
+
+Even though we saw that *Adelie* and *Chinstrap* penguins have similar sizes (or at least wingspan and body mass) it looks like former have much shorter bills. Let's customize our plot and finish!
+
+```{r, out.width="80%", fig.align='center'}
+penguins %>%
+  filter(!is.na(bill_length_mm)) %>%
+  ggplot() +
+  geom_boxplot(aes(x=species,y=bill_length_mm, fill=species), outlier.alpha = 0) + 
+  geom_jitter(aes(x=species, y=bill_length_mm), width = 0.2, height = 0, size=2, alpha=0.4) + # add transparency to points
+  labs(y= "Bill length [mm]", title = "Bill length across different species", fill="") +
+  theme_bw() +
+  theme(legend.position = "bottom") +
+  scale_fill_manual(values = pnw_palette("Bay",3))
+```
+
+Let's save our plot:
 ```{r}
-penguins_raw
-glimpse(penguins_raw)
+bill_plot <- last_plot()
 ```
 
-When is a breeding season of different penguin species? 
+#### (3) Combining different plots
+\  
 
-```{r}
-penguins_raw %>%
-  ggplot() + 
-  geom_histogram(aes(x=`Date Egg`, fill=Species), height=0, bins=20)
+We created three different plots for *palmerpenguins* dataset. How can we see them together? This is a different then creating *facets*, because every plot represents different data. One of the easiest way to display different plots together is to use *ggarrange* function from *ggpubr* package.
 
+```{r, out.width="100%", fig.align='center'}
+library(ggpubr)
+# the input are variables with our saved plots
+ggarrange(species_plot, bill_plot,mass_wingspan_plot,
+          nrow=2, ncol=2,# you can specify number of rows and columns
+          common.legend = TRUE,
+          align = "hv",
+          labels = c('A', 'B', 'C'))
 ```
 
+Almost done, let's add something extra!
 
+```{r, out.width="100%", fig.align='center'}
+library(png)
+logo_png <- readPNG("images/palmer_logo.png")
+logo_img <- ggplot() + background_image(logo_png) + coord_fixed() #fix image ratio 
 
+ggarrange(species_plot, bill_plot, mass_wingspan_plot, logo_img,
+          nrow=2, ncol=2,
+          common.legend = TRUE,
+          align = "hv",
+          labels = c('A', 'B', 'C', ""),
+          widths = c(1,1,1,0.5))
+```
 
-### separate & unite
 
 ### spread & gather
 
-### joins
 
