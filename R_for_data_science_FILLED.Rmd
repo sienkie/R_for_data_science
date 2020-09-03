@@ -1,0 +1,488 @@
+---
+title: |
+  | **R for data science**
+  | with tidyverse and ggplot2
+author: |
+  | Karolina Sienkiewicz
+  | for NGSeminars
+date: "September 3, 2020"
+output:
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(render = function(x, ...){
+    unlockBinding(".Last.value", .BaseNamespaceEnv)
+    assign(".Last.value", x, .BaseNamespaceEnv)
+    lockBinding(".Last.value", .BaseNamespaceEnv)
+    knitr::knit_print(x, ...)
+}) # allows us to use .Last.value in knitted .Rmd file as we would in R console
+```
+
+# I. Intro to tidyverse
+
+```{r, echo=F}
+knitr::include_graphics("images/tidyverse.png")
+```
+
+## 1. Why use tidyverse?
+
+- curated [*collection*](https://www.tidyverse.org/packages) of packages for data science
+- packages share data classes and grammar
+- low entry threshold
+- database-like approach
+- **aes**thetically pleasing visualisations
+- big community and great resources online
+
+Let's import tidyverse packages:
+
+```{r}
+library(tidyverse)
+```
+
+The output information provides as with a useful insight into name conflicts. The more packages you have attached, the more likely some of conflicts appear.
+
+You can also supress this message bby running:
+```{r}
+suppressPackageStartupMessages(library(tidyverse))
+```
+
+## 2. pipe operator %>% 
+
+It allows as to chain operations together for convenience and better readability. 
+
+```{r}
+as.character(round(mean(seq(100))))
+
+seq(100) %>% 
+  mean() %>%
+  round() %>%
+  as.character()
+```
+
+
+## 3. tibbles
+
+Basic data object in tidyverse. It's basically an improved/modernized data.frame.
+
+```{r}
+tibble(numbers=c(1,2,3),names=c('a','b','c'))
+```
+
+```{r}
+tb <- .Last.value #let's save our tibble on variable
+```
+
+How do we make conversions between data.frames and tibbles?
+
+```{r}
+# convert tibble to data frame
+df <- as.data.frame(tb)
+# add rownames
+row.names(df) <- c("row1", "row2", "row3")
+df
+```
+
+```{r}
+# convert data.frame to tibble
+as_tibble(df)
+as_tibble(df, rownames = "row_names")
+```
+
+How to add new rows to the tibble?
+```{r}
+#adding new rows
+add_row(tb, numbers=4, names="d")
+tb 
+tb <- add_row(tb, numbers=4, names="d")
+tb
+```
+
+How to add new column to the tibble?
+```{r}
+# we can treat the tibble as a data.frame
+tb$squres <- tb$numbers^2
+tb
+```
+```{r}
+# or we can use tidyverse 'mutate' operation
+tb %>% mutate(cubes = squres*numbers)
+```
+We will talk more about 'mutate' and other tidyverse operation soon.
+
+How to save and read local data file?
+```{r}
+# saving tibble to file
+write_tsv(tb, path = "new_tibble.tsv")
+
+# loading local data
+countries <- read_tsv('countries.tsv')
+# explicitly specyfying column types in loaded data
+countries <- read_tsv('countries.tsv', col_types=c(col_double(), col_character()))
+# accepting default inferred coulumn types
+countries <- read_tsv('countries.tsv', col_types=cols()) 
+countries
+```
+This example file was created based on estimated population data available at "United Nations data" [*website*](http://data.un.org).
+
+Other data we are going to explore today is penguins data set, which contains information about 3 species of penguins. 
+Data was collected and by [*Dr. Kristen Gorman*](https://www.uaf.edu/cfos/people/faculty/detail/kristen-gorman.php) and the [*Palmer Station, Antarctica LTER*](https://pal.lternet.edu), a member of the [*Long Term Ecological Research Network*](https://lternet.edu). Artwork by [*@allison_horst*](https://twitter.com/allison_horst).
+
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics('images/palmer_penguins.png')
+```
+
+```{r}
+library(palmerpenguins)
+penguins
+```
+
+Tip: remember that you can still use usual 'data.frame-like' operations on this data set. Try checking dimensions with *dim(penguins)* or looking at whole dataset with *View(penguins)*.
+
+```{r, echo=F}
+knitr::include_graphics('images/palmer_penguins_bill.png')
+```
+
+Alright, now that we have some data, let's talk about basic operations on data you can do with tidyverse!
+
+## 4. Basic tidyverse operations
+
+Here are some usefull commands you can use to explore your data. Included figures are taken from the [*Data Wrangling with dplyr nd tidyr Cheat Sheet*](https://rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf).
+
+### (1) Subseting data
+
+- use **select** to select columns by names (or helper function)
+
+```{r, echo=F, out.width="60%"}
+knitr::include_graphics('images/dplyr_select.png')
+```
+
+- use **filter** to select rows that meet logical criteria / select rows based on value in specific column
+
+```{r, echo=F, out.width="60%"}
+knitr::include_graphics('images/dplyr_filter.png')
+```
+
+### (2) Ordering data
+
+- use **arrange** to order your rows by a column value (from row to high)
+
+- combine **arrange** with **desc** to reverse the order
+
+### (3) Updating your data
+
+- use **mutate** to add new columns or change values in existing columns
+
+- use **separate** to separate values in column into multiple columns and **unite** to reverse the process
+
+```{r, echo=F, out.width="60%"}
+knitr::include_graphics('images/dplyr_mutate.png')
+```
+
+### (4) Grouping and summarising data
+
+- use **group_by** to group the rows based on value in column -> it will add additional layer of organization for other functions
+
+- use **summarise** to summarise your data into single row of values, combine it with **group_by** to calculate statistics for your groups
+
+```{r, echo=F, , out.width="75%"}
+knitr::include_graphics('images/dplyr_group_by_summarise.png')
+```
+
+### (5) Combining data sets
+
+- use **left_join** or **right_join** to add columns from one data set to compatibile rows of second data set
+
+- use **inner_join** to combine data sets and preserve only common rows 
+
+- use **full_join** to combine data sets nd preserve all rows
+
+```{r, echo=F}
+knitr::include_graphics('images/dplyr_join.png')
+```
+
+## II. Data exploration & Plotting
+
+### 1. "Palmer penguins"
+
+Let's try using this operations to explore our data sets. How about we take a "glimpse" into our penguin dataset?
+
+```{r}
+glimpse(penguins)
+```
+
+Here is the data column specification: 
+
+- *species* a factor denoting penguin species
+
+- *island* a factor denoting island in Palmer Archipelago, Antarctica
+
+- *bill_length_mm* a number denoting bill length (in millimeters)
+
+- *bill_depth_mm* a number denoting bill depth (in millimeters)
+
+- *flipper_length_mm* an integer denoting flipper length (in millimeters)
+
+- *body_mass_g* an integer denoting body mass (in grams)
+
+- *sex* a factor denoting penguin sex
+
+Tip: Pay special attention to data types inferred by tidyverse. This data was already cleaned up and prepared for analysis.
+Factor type variables will be very important for grouping and plotting our data.
+
+### 2. How many panguins of each species is in the dataset?
+
+1. We are only interested in 'species' column, so we can subset the dataset. (This is an optional step, just for excercise and visual purposes.)
+
+```{r}
+select(penguins, species)
+```
+
+How to do it when using %>% operator?
+```{r}
+penguins %>% 
+  select(species)
+```
+
+Bonus (1) : Other example uses of **select**:
+
+```{r}
+# select two columns
+penguins %>% select(species, sex)
+# select everything but 'species' column
+penguins %>% select(- species)
+# select coumns with regular expression
+penguins %>% select(matches("bill*"))
+```
+
+Bonus (2): How to extract values from the tibble? (Here we use *head* function to show only first values in the vector)
+```{r}
+# Option 1 -> deframing the vector 
+penguins %>%
+  select(species) %>%
+  deframe() %>%
+  head()
+
+# Option 2 -> selecting 'in place'
+penguins %>%
+  .$species %>%
+  head()
+```
+
+Moving on to our exercise...
+
+2. Let's try counting our penguins with **summarise** function:
+
+```{r}
+penguins %>%
+  summarise(count=n())
+```
+
+3. Well that's all of our penguins. If we are interested in looking at different species we should group data with **group_by** before.
+
+```{r}
+# just grouping our penguins does not visually affect the data
+penguins %>% 
+  group_by(species)
+
+penguins %>%  
+  group_by(species) %>%
+  summarise(count=n())
+```
+
+This looks nice, but it would look even better if we plot it
+
+### 3. How to plot in ggplot2?
+
+The **ggplot2** has very specific grammar. We construct the plots step, by step by adding additional layers of organization. Take a look at this figure below (created and made available by [*Coding Club*](https://ourcodingclub.github.io) on CC BY 4.0 license) to get preview of what we are going to do.
+
+```{r, echo=FALSE}
+knitr::include_graphics("images/ggplot_layers.png")
+```
+Hmm... I wonder if our penguins with bigger flippers are also havier? We will check this out in a moment! Now let's try to create a plot showing a distribution of species in our dataset.
+
+
+
+Bonus (3): **summarize** function can do much more then just counting penguins! 
+```{r}
+# check mean, maximum and minimum body mass of penguins across species
+penguins %>%
+  group_by(species) %>%
+  summarise(count=n(), 
+            mean_mass = mean(body_mass_g, na.rm=TRUE), 
+            min_mass = min(body_mass_g, na.rm = TRUE), 
+            max_mass = max(body_mass_g, na.rm = TRUE))
+# calculate mean accross all numeric columns
+penguins %>% 
+  group_by(species) %>% 
+  summarize(across(where(is.numeric), mean, na.rm = TRUE)) %>%
+  select(-year) # remove year column from output
+```
+
+
+### 3. filter
+
+```{r}
+penguins %>%
+  select(species, body_mass_g) %>%
+  filter(species == 'Adelie')
+```
+
+```{r}
+penguins %>%
+  select(species, body_mass_g) %>%
+  filter(species %in% c('Adelie', 'Gentoo'))
+```
+
+### 4. arrange & desc
+```{r}
+penguins %>%
+  arrange(body_mass_g)
+```
+```{r}
+penguins %>%
+  arrange(desc(body_mass_g))
+```
+
+## III. Data plotting
+
+** Does heavier penguins have longer flippers? **
+
+```{r}
+penguins %>%
+  ggplot() +
+  geom_point(aes(x=body_mass_g, y=flipper_length_mm))
+```
+```{r}
+#penguins %>%
+#  ggplot() +
+#  geom_point(aes(x=body_mass_g, y=flipper_length_mm)) +
+#  xlab("Body mass [g]") + ylab("Flipper length [mm]") + ggtitle("Heavier penguins have bigger wingspan")
+
+penguins %>%
+  ggplot() +
+  geom_point(aes(x=body_mass_g, y=flipper_length_mm)) +
+  labs(x= "Body mass [g]", y= "Flipper length [mm]", title = "Heavier penguins have bigger wingspan")
+```
+```{r}
+penguins %>%
+  ggplot() +
+  geom_point(aes(x=body_mass_g, y=flipper_length_mm)) +
+  geom_smooth(aes(x=body_mass_g, y=flipper_length_mm), method = "lm") # let's fit linear model to it - gray band is 95% confidence level interval for predictions from model
+```
+
+```{r}
+penguins %>%
+  ggplot() +
+  geom_point(aes(x=body_mass_g, y=flipper_length_mm, color=species)) +
+  geom_smooth(aes(x=body_mass_g, y=flipper_length_mm, group=species, color=species), method = "lm") 
+```
+
+### Customizing plots
+
+```{r}
+p <- penguins %>%
+  ggplot() +
+  geom_point(aes(x=body_mass_g, y=flipper_length_mm, color=species)) +
+  geom_smooth(aes(x=body_mass_g, y=flipper_length_mm, group=species, color=species), method = "lm",se = F)
+
+p <- p + labs(x= "Body mass [g]", y= "Flipper length [mm]", title = "Heavier penguins have bigger wingspan", color=NULL)
+
+p + theme_bw()
+
+p + theme_bw() + theme(legend.position = "bottom")
+```
+```{r}
+# color blind friendly palette (source: http://jfly.iam.u-tokyo.ac.jp/color/)
+cbp <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+p <- last_plot()
+p + scale_color_manual(values=cbp)
+```
+
+```{r}
+p <- last_plot()
+```
+
+Let's focus on flipper length distribution across the species.
+```{r}
+penguins %>%
+  ggplot() +
+  geom_point(aes(x=species, y=flipper_length_mm))
+```
+Hmm that doesn't look right, we cannot use the same geom type. What should we use?
+
+It always depends on what we want to see:
+- relationship between two countinuous variables? -> scatter plots
+- compare values between groups? -> boxplot / violin plot, barplot or dot plot (geom_jitter)
+- show the distribution of the data -> histogram or density plot 
+
+Let's try to do a combination of barplot and dot plot:
+```{r}
+penguins %>%
+  ggplot() +
+  geom_boxplot(aes(x=species,y=flipper_length_mm), outlier.alpha = 0) +
+  geom_jitter(aes(x=species, y=flipper_length_mm), width = 0.2, height = 0)
+```
+Let's look at penguins of both sexes separately.
+facet_wrap() and facet_grid() functions can split data into a additional panels based on one or combination of multiple factor values.
+
+```{r}
+penguins %>%
+  ggplot() +
+  geom_boxplot(aes(x=species,y=flipper_length_mm), outlier.alpha = 0) +
+  geom_jitter(aes(x=species, y=flipper_length_mm), width = 0.2, height = 0) +
+  facet_wrap(~sex)
+```
+We can ignore penguins of unknown sex for now
+```{r}
+penguins %>% 
+  filter(!is.na(sex)) %>%
+  ggplot() +
+  geom_boxplot(aes(x=species,y=flipper_length_mm), outlier.alpha = 0) +
+  geom_jitter(aes(x=species, y=flipper_length_mm), width = 0.2, height = 0) +
+  facet_wrap(~sex)
+```
+It looks much better then our initial plot. I wonder if there are differences connected to the island penguins live on.
+
+```{r}
+penguins %>% 
+  filter(!is.na(sex)) %>%
+  ggplot() +
+  geom_boxplot(aes(x=species,y=flipper_length_mm), outlier.alpha = 0) +
+  geom_jitter(aes(x=species, y=flipper_length_mm, color=island), width = 0.2, height = 0) +
+  facet_wrap(~sex)
+```
+Difference doesn't seem to be connected to the place. Also it seems like only Adelie penguinsare living on more then one island. How would we double check it?
+
+```{r}
+penguins %>%
+  group_by(species, island) %>%
+  summarise(n())
+```
+
+## IV. Let's complicate things 
+
+```{r}
+penguins_raw
+glimpse(penguins_raw)
+```
+
+When is a breeding season of different penguin species? 
+
+```{r}
+penguins_raw %>%
+  ggplot() + 
+  geom_histogram(aes(x=`Date Egg`, fill=Species), height=0, bins=20)
+
+```
+
+
+
+
+### separate & unite
+
+### spread & gather
+
+### joins
+
