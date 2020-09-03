@@ -487,7 +487,7 @@ penguins %>% filter(species %in% c('Adelie', 'Gentoo'))
 penguins %>% filter(species == 'Adelie' & island == 'Torgersen')
 ```
 
-### 3. Does heavier penguins have longer flippers? 
+### 4. Does heavier penguins have longer flippers? 
 
 #### (1). Let's explore the data
 \  
@@ -600,7 +600,7 @@ Let's save our plot for later:
 mass_wingspan_plot <- last_plot()
 ```
 
-### 4. What is the distribution of bill length accross species?
+### 5. What is the distribution of bill length accross species?
 
 #### (1). Let's explore the data
 \  
@@ -701,6 +701,62 @@ ggarrange(species_plot, bill_plot, mass_wingspan_plot, logo_img,
 ```
 
 
-### spread & gather
+### 6. Importace of reshaping your data
 
+The *palmerpenguins* dataset is already preprocessed nd prepared for analysis. This is not always the case. When using your own data frequently check if your observations are in correct orientation (rows or columns). This is extremely importatant when plotting data, because most of the operations is based on assumption of variables being in columns of the tibble.
 
+*Q*: What to do when this is not the case? 
+*A*: We have to reshape the data with the help of **gather** and **spread** operations.
+
+*Q*: How do we decide if our data need reshaping?
+*A*: Think about effect you need to achieve and work your way down!
+
+Let's see an example! Remember *countries* dataset we loaded from the file?
+
+```{r}
+countries
+```
+
+Let's say we are interested in seeing a (line) plot of population change over time in separate countries. To make things extra complicated we want to look at both sexes together.
+
+What variables we would need? 
+
+- country for grouping purposes
+
+- year for *x axis*
+
+- (summed) population for *y axis*
+
+This is what we would call a "*wide*" dataset, each different variable is in the different column. We want to reshape the data into a *long* (or *narrow*) dataset. This is where **gather** operation comes to our aid:
+
+```{r}
+countries %>%
+  gather(key="country", value="population", -year, -sex)
+```
+
+Let's save this data on variable for our plot.
+```{r}
+long_countries <- .Last.value
+```
+
+We can revert this situation by using a **spread** command. It's very helpful in case if we want to focus only on specific observations.
+
+```{r}
+long_countries %>%
+  spread(key = country, value=population)
+```
+
+Here is the plot we wanted to make:
+
+```{r, out.width="80%", fig.align='center'}
+long_countries %>%
+  group_by(year, country) %>%
+  summarise(total_population=sum(population)) %>% # we are interested in total population
+  ggplot(aes(x=year, y=total_population, group=country, color=country)) +
+  geom_line(size=1) +
+  geom_point(size=3)  +
+  labs(y="estimated population", title = "Population over time", color="") +
+  theme_bw() +
+  theme(legend.position = "top") +
+  scale_color_manual(values = pnw_palette("Sailboat",4))
+```
