@@ -31,7 +31,7 @@ knitr::include_graphics("images/tidyverse.png")
 - packages share data classes and grammar
 - low entry threshold
 - database-like approach
-- **aes**thetically pleasing visualisations
+- **aes**thetically pleasing visualizations
 - big community and great resources online
 
 Let's import tidyverse packages:
@@ -42,7 +42,7 @@ library(tidyverse)
 
 The output information provides as with a useful insight into name conflicts. The more packages you have attached, the more likely some of conflicts appear.
 
-You can also supress this message bby running:
+You can also suppress this message by running:
 ```{r}
 suppressPackageStartupMessages(library(tidyverse))
 ```
@@ -147,9 +147,9 @@ Alright, now that we have some data, let's talk about basic operations on data y
 
 ## 4. Basic tidyverse operations
 
-Here are some usefull commands you can use to explore your data. Included figures are taken from the [*Data Wrangling with dplyr nd tidyr Cheat Sheet*](https://rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf).
+Here are some useful commands you can use to explore your data. Included figures are taken from the [*Data Wrangling with dplyr nd tidyr Cheat Sheet*](https://rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf).
 
-### (1) Subseting data
+### (1) Subsetting data
 
 - use **select** to select columns by names (or helper function)
 
@@ -179,7 +179,7 @@ knitr::include_graphics('images/dplyr_filter.png')
 knitr::include_graphics('images/dplyr_mutate.png')
 ```
 
-### (4) Grouping and summarising data
+### (4) Grouping and summarizing data
 
 - use **group_by** to group the rows based on value in column -> it will add additional layer of organization for other functions
 
@@ -191,11 +191,11 @@ knitr::include_graphics('images/dplyr_group_by_summarise.png')
 
 ### (5) Combining data sets
 
-- use **left_join** or **right_join** to add columns from one data set to compatibile rows of second data set
+- use **left_join** or **right_join** to add columns from one data set to compatible rows of second data set
 
 - use **inner_join** to combine data sets and preserve only common rows 
 
-- use **full_join** to combine data sets nd preserve all rows
+- use **full_join** to combine data sets and preserve all rows
 
 ```{r, echo=F, out.width="50%"}
 knitr::include_graphics('images/dplyr_join.png')
@@ -230,9 +230,9 @@ Here is the data column specification:
 Tip: Pay special attention to data types inferred by tidyverse. This data was already cleaned up and prepared for analysis.
 Factor type variables will be very important for grouping and plotting our data.
 
-### 2. How many panguins of each species is in the dataset?
+### 2. How many penguins of each species is in the dataset?
 
-1. We are only interested in 'species' column, so we can subset the dataset. (This is an optional step, just for excercise and visual purposes.)
+1. We are only interested in 'species' column, so we can subset the dataset. (This is an optional step, just for exercise and visual purposes.)
 
 ```{r}
 select(penguins, species)
@@ -299,7 +299,7 @@ The **ggplot2** has very specific *grammar*, which provides the rules on how to 
 ```{r, echo=FALSE, out.height="80%", fig.align='center'}
 knitr::include_graphics("images/ggplot_layers.png")
 ```
-Hmm... I wonder if our penguins with bigger flippers are also havier? We will check this out in a moment! Now let's try to create a plot showing a distribution of species in our dataset.
+Hmm... I wonder if our penguins with bigger flippers are also heavier? We will check this out in a moment! Now let's try to create a plot showing a distribution of species in our dataset.
 
 #### (1) Create base ggplot object
 \  
@@ -312,7 +312,7 @@ penguins %>%
 
 Well... that didn't work. However, we didn't even specify what we want to plot yet so it's understandable. 
 
-#### (2) Add aestethics to the plot
+#### (2) Add aesthetics to the plot
 \  
 
 *Aesthetics* specify what we want to plot (map variables to *x* and *y axis* and other parts of plot such as its color).
@@ -339,7 +339,7 @@ penguins %>%
   ggplot(aes(x=species, y=count, color=species)) +
   geom_bar(stat="identity")
 ```
-My friends and foes we have a plot! Only... the colors are not quite alright. What happend? ggplot uses two different parameters for setting colors, in general *color*/*colour* defines the color of the geom outline and *fill* specifies what color the geom is filled with. Let's correct it!
+My friends and foes we have a plot! Only... the colors are not quite alright. What happened? ggplot uses two different parameters for setting colors, in general *color*/*colour* defines the color of the geom outline and *fill* specifies what color the geom is filled with. Let's correct it!
 
 ```{r, out.width="80%", fig.align='center'}
 penguins %>% 
@@ -363,7 +363,7 @@ penguins %>%
 #### (3) Mixing different geoms
 \  
 
-Let's try adding labels with specifc count to our plot with *geom_label* (We can also use *geom_text*).
+Let's try adding labels with specific count to our plot with *geom_label* (We can also use *geom_text*).
 ```{r, out.width="80%", fig.align='center'}
 penguins %>% 
   group_by(species) %>%
@@ -376,7 +376,7 @@ This looks very good already but there is much more things we could do.
 
 #### (3) Customizing your plots.
 \  
-We definetely cannot cover all the different way you can improve your plot, but here are some examples of possible customizations:
+We definitely cannot cover all the different way you can improve your plot, but here are some examples of possible customizations:
 
 - updating axis labels and title (all can be changed with *labs* function, or by adding *xlab*, *ylab* and *ggtitle*)
 
@@ -384,7 +384,7 @@ We definetely cannot cover all the different way you can improve your plot, but 
 
 - changing color palette to color-blind friendly palette
 
-- adding new *theme** to our plot (quick change of plot appearence, see more [*here*](https://ggplot2.tidyverse.org/reference/ggtheme.html) and [*here*](https://github.com/jrnold/ggthemes))
+- adding new *theme** to our plot (quick change of plot appearance, see more [*here*](https://ggplot2.tidyverse.org/reference/ggtheme.html) and [*here*](https://github.com/jrnold/ggthemes))
 
 - editing our theme, ex. to change legend placements, removing legend altogether if it's not needed or changing fonts
 
@@ -441,7 +441,7 @@ penguins %>%
   facet_wrap(~sex) # split based on sex
 ```
 
-The plot looks nice, but unexpectly we have discovered that some penguins' sex was not identified. This is a good opportunity to practise some data filtering.
+The plot looks nice, but unexpectedly we have discovered that some penguins' sex was not identified. This is a good opportunity to practice some data filtering.
 
 ```{r}
 # how many NA's is in the colum
@@ -546,7 +546,7 @@ penguins %>%
   summarise(avg_reatio = mean(ratio, na.rm = T))
 ```
 
-Our results sure look promising, but we cannot really tell only based only on means. Let's plot the data! What type of plot do we want to use? How about we show every penguin as a datapoint? 
+Our results sure look promising, but we cannot really tell only based only on means. Let's plot the data! What type of plot do we want to use? How about we show every penguin as a data point? 
 
 #### (2) Plotting the relationship between two continuous variables
 \  
@@ -567,7 +567,7 @@ penguins %>%
   geom_point(aes(x=body_mass_g, y=flipper_length_mm, color=species))
 ```
 
-This is great! It looks like there is some correlation here. Also *Gentoo* penguis are clearly the biggest birds.
+This is great! It looks like there is some correlation here. Also *Gentoo* penguins are clearly the biggest birds.
 Let's fit linear model to our data to better show trend - gray band is 95% confidence level interval for predictions from model.
 
 ```{r, out.width="80%", fig.align='center'}
@@ -578,7 +578,7 @@ penguins %>%
   geom_smooth(aes(x=body_mass_g, y=flipper_length_mm), method = "lm")
 ```
 
-#### (3) Customising the plot
+#### (3) Customizing the plot
 \  
 
 This already looks very good! Let's customize this plot a bit and fit model separately to show trend in different species.
@@ -600,7 +600,7 @@ Let's save our plot for later:
 mass_wingspan_plot <- last_plot()
 ```
 
-### 5. What is the distribution of bill length accross species?
+### 5. What is the distribution of bill length across species?
 
 #### (1). Let's explore the data
 \  
@@ -626,7 +626,7 @@ penguins %>%
 ```
 Hmm... that doesn't look right, we cannot use the same *geom* type. What should we use?
 
-The answear to this questions is not always immediately obvious. The most important thing to consider is what are the types of variables we want to display. Take a look at this figure (also created by [*Coding Club*](https://ourcodingclub.github.io)).
+The answer to this questions is not always immediately obvious. The most important thing to consider is what are the types of variables we want to display. Take a look at this figure (also created by [*Coding Club*](https://ourcodingclub.github.io)).
 
 ```{r, echo=F, out.width="100%", fig.align='center'}
 knitr::include_graphics("images/plot_types.png")
@@ -641,7 +641,7 @@ penguins %>%
   geom_boxplot(aes(x=species,y=bill_length_mm, fill=species))
 ```
 
-This is an improvement, but if we want to also see our specific datapoint we can do it with a variation of *geom_point* called *geom_jitter* (it adds a bit of noise to points position, so we will be able to see our observations).
+This is an improvement, but if we want to also see our specific data point we can do it with a variation of *geom_point* called *geom_jitter* (it adds a bit of noise to points position, so we will be able to see our observations).
 
 ```{r, out.width="80%", fig.align='center'}
 penguins %>%
@@ -701,9 +701,9 @@ ggarrange(species_plot, bill_plot, mass_wingspan_plot, logo_img,
 ```
 
 
-### 6. Importace of reshaping your data
+### 6. Importance of reshaping your data
 
-The *palmerpenguins* dataset is already preprocessed nd prepared for analysis. This is not always the case. When using your own data frequently check if your observations are in correct orientation (rows or columns). This is extremely importatant when plotting data, because most of the operations is based on assumption of variables being in columns of the tibble.
+The *palmerpenguins* dataset is already preprocessed and prepared for analysis. This is not always the case. When using your own data frequently check if your observations are in correct orientation (rows or columns). This is extremely important when plotting data, because most of the operations is based on assumption of variables being in columns of the tibble.
 
 *Q*: What to do when this is not the case? 
 *A*: We have to reshape the data with the help of **gather** and **spread** operations.
